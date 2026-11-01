@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#123326">
+  <meta name="description" content="Lucky Five — Kersfees in Loeriesfontein saam met familie.">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <title>Lucky Five — Secret Gift Exchange</title>
+</head>
+<body>
+  <div class="snow" aria-hidden="true"></div>
+  <main class="app-shell">
+    <header class="hero">
+      <div class="topline"><span>✦ A LITTLE CHRISTMAS MAGIC ✦</span></div>
+      <div class="hero-art" aria-hidden="true">
+        <span class="ornament o1">✦</span><span class="ornament o2">❄</span>
+        <span class="tree">🎄</span><span class="gift gift-a">🎁</span><span class="gift gift-b">🎁</span>
+      </div>
+      <h1>LUCKY <em>FIVE</em></h1>
+      <p class="tagline">Kersfees in Loeriesfontein<br><strong>saam met familie ❤️</strong></p>
+      <p class="subtitle">Five people · Five numbers · Five surprises</p>
+    </header>
+
+    <section id="notice" class="notice hidden" role="status"></section>
+
+    <section id="welcome" class="panel">
+      <div class="panel-heading">
+        <span class="eyebrow">THE CHRISTMAS GIFT EXCHANGE</span>
+        <h2>Let the fun begin!</h2>
+        <p>Create a game for your family, or join one using an invitation link.</p>
+      </div>
+      <button id="create-game" class="button button-primary">🎄 Create a new game</button>
+      <div class="join-hint">Have an invitation link? Open it on this phone to join.</div>
+    </section>
+
+    <section id="join-panel" class="panel hidden">
+      <div class="panel-heading">
+        <span class="eyebrow">YOU'RE INVITED</span>
+        <h2>Who's joining?</h2>
+        <p>Enter your name. Use the same phone and browser whenever you return.</p>
+      </div>
+      <label class="field-label" for="player-name">Your name</label>
+      <input id="player-name" class="text-input" maxlength="32" autocomplete="name" placeholder="e.g. Christopher">
+      <button id="join-game" class="button button-primary">Join the game 🎁</button>
+      <p class="fine-print">Your private game key is saved on this device. Don't clear this browser's site data before the gift draw is complete.</p>
+    </section>
+
+    <section id="room" class="hidden">
+      <div class="room-bar">
+        <div><span class="eyebrow">YOUR CHRISTMAS GAME</span><h2 id="room-title">Lucky Five</h2></div>
+        <span id="room-count" class="count-pill">0 / 5 joined</span>
+      </div>
+      <div class="share-card panel">
+        <div><span class="eyebrow">INVITE YOUR FAMILY</span><p>Share this link with the other players.</p></div>
+        <div class="share-row"><input id="invite-link" class="text-input" readonly><button id="copy-link" class="button button-small">Copy</button></div>
+      </div>
+
+      <div class="panel">
+        <div class="section-title"><span>🎅</span><div><h3>Who's playing?</h3><p id="lobby-caption">Waiting for five players to join.</p></div></div>
+        <ul id="player-list" class="player-list"></ul>
+      </div>
+
+      <div id="number-stage" class="panel stage-card hidden">
+        <span class="eyebrow">ROUND ONE</span>
+        <h2>🎡 Your lucky number</h2>
+        <p>When all five players have joined, spin to reveal your own unique number.</p>
+        <div id="number-wheel" class="wheel-wrap">
+          <div class="wheel-pointer">▼</div>
+          <div class="wheel" aria-hidden="true"><div class="wheel-center">🎄</div></div>
+        </div>
+        <div id="number-result" class="result-box hidden"></div>
+        <button id="spin-number" class="button button-primary" disabled>Spin for my number</button>
+      </div>
+
+      <div id="gift-stage" class="panel stage-card hidden">
+        <span class="eyebrow">ROUND TWO</span>
+        <h2>🎁 Who will you surprise?</h2>
+        <p>Your gift draw is private. Only you will see who you're buying for.</p>
+        <div id="gift-wheel" class="wheel-wrap">
+          <div class="wheel-pointer">▼</div>
+          <div class="wheel gift-wheel" aria-hidden="true"><div class="wheel-center">🎁</div></div>
+        </div>
+        <div id="gift-result" class="result-box gift-result hidden"></div>
+        <button id="spin-gift" class="button button-gold" disabled>Spin for my gift recipient</button>
+      </div>
+
+      <div class="panel privacy-note">
+        <span>🔒</span><p><strong>Secret Santa promise:</strong> your gift assignment is private. Other players can see that you've completed your spin, but not who you drew.</p>
+      </div>
+      <button id="leave-view" class="button button-quiet">Back to welcome screen</button>
+    </section>
+
+    <footer>
+      <div class="footer-lights">✦ ✧ ✦ ✧ ✦</div>
+      <p>Made with ❤️ for <strong>Kersfees in Loeriesfontein</strong></p>
+      <small>LUCKY FIVE · Let the surprises begin!</small>
+    </footer>
+  </main>
+  <script src="/config.js"></script>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

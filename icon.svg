@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="112" fill="#123326"/>
+<circle cx="256" cy="246" r="174" fill="#1c4b37" stroke="#e9c77c" stroke-width="14"/>
+<path d="M256 92 155 244h202L256 92Zm0 92-126 170h252L256 184Zm-22 205h44v47h-44z" fill="#2e8052" stroke="#f3d58f" stroke-width="9" stroke-linejoin="round"/>
+<path d="m256 65 15 27 31 5-23 22 5 31-28-15-28 15 5-31-23-22 31-5z" fill="#f3d58f"/>
+<text x="256" y="464" font-family="Arial,sans-serif" font-size="42" font-weight="bold" text-anchor="middle" fill="#fff4df">FIVE</text>
+</svg>
