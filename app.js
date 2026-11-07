@@ -39,7 +39,7 @@ async function api(action, payload = {}) {
 }
 function setBusy(value) {
   state.busy = value;
-  ["create-game", "join-game", "spin-number", "spin-gift", "copy-link"].forEach(id => {
+  ["create-game", "join-game", "spin-number", "spin-gift", "copy-link", "save-couples"].forEach(id => {
     const el = $(id); if (el) el.disabled = value || el.dataset.locked === "true";
   });
 }
@@ -83,6 +83,19 @@ function renderStatus(data) {
       <span class="player-state">${p.gift_drawn ? "Gift drawn ✓" : ""}</span>
     </li>`).join("");
   const ready = data.status === "ready" || data.status === "complete";
+  const couplesPanel = $("couples-panel");
+  couplesPanel.classList.toggle("hidden", !(data.is_admin && ready));
+  if (data.is_admin && ready) {
+    ["pair1a", "pair1b", "pair2a", "pair2b"].forEach(id => {
+      const select = $(id);
+      const previous = select.value;
+      select.innerHTML = '<option value="">Choose a player…</option>' + data.players.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");
+      if (previous && data.players.some(p => p.id === previous)) select.value = previous;
+      select.disabled = !!data.couples_set;
+    });
+    $("save-couples").classList.toggle("hidden", !!data.couples_set);
+    $("couples-saved").classList.toggle("hidden", !data.couples_set);
+  }
   $("number-stage").classList.toggle("hidden", !ready);
   $("gift-stage").classList.toggle("hidden", !ready);
   if (data.my_number !== null && data.my_number !== undefined) {
@@ -97,14 +110,14 @@ function renderStatus(data) {
     setButton("spin-gift", false, "Your secret is safe ✓");
   } else {
     $("gift-result").classList.add("hidden");
-    const canGift = ready && data.my_number !== null && data.my_number !== undefined;
-    setButton("spin-gift", canGift, canGift ? "Spin for my gift recipient" : "Reveal your number first");
+    const canGift = ready && data.couples_set && data.my_number !== null && data.my_number !== undefined;
+    setButton("spin-gift", canGift, canGift ? "Spin for my gift recipient" : (!data.couples_set ? "Waiting for host to set couples…" : "Reveal your number first"));
   }
   showScreen("room");
 }
 async function refreshStatus() {
   if (!state.playerToken) return;
-  const data = await api("status", { playerToken: state.playerToken });
+  const data = await api("status", { playerToken: state.playerToken, adminToken: state.adminToken });
   renderStatus(data);
 }
 async function startPolling() {
@@ -149,6 +162,20 @@ $("join-game").addEventListener("click", async () => {
   if (!creating && !code) return notice("This invitation link doesn't contain a game code.", "error");
   await joinWithName(code, name, creating);
 });
+$("save-couples").addEventListener("click", async () => {
+  const pair1a = $("pair1a").value, pair1b = $("pair1b").value;
+  const pair2a = $("pair2a").value, pair2b = $("pair2b").value;
+  if (![pair1a, pair1b, pair2a, pair2b].every(Boolean)) return notice("Choose all four people first.", "error");
+  if (new Set([pair1a, pair1b, pair2a, pair2b]).size !== 4) return notice("Each couple must contain two different people, and the couples must be different.", "error");
+  setBusy(true); clearNotice();
+  try {
+    await api("set-couples", { adminToken: state.adminToken, pair1a, pair1b, pair2a, pair2b });
+    await refreshStatus();
+    notice("Both couples are saved. The gift draw is ready! ❤️", "success");
+  } catch (e) { notice(e.message, "error"); }
+  finally { setBusy(false); }
+});
+
 $("copy-link").addEventListener("click", async () => {
   try { await navigator.clipboard.writeText($("invite-link").value); $("copy-link").textContent = "Copied ✓"; }
   catch { $("invite-link").select(); notice("Copy wasn't available. Select and copy the invitation link.", "info"); }
@@ -171,6 +198,7 @@ $("spin-gift").addEventListener("click", async () => {
   try {
     await spinAnimation("gift-wheel");
     const result = await api("spin-gift", { playerToken: state.playerToken });
+    if (result.retry) { notice(result.reason || "Not a valid draw. Spin again!", "info"); return; }
     revealResult("gift-result", `You're buying a present for <strong>${escapeHtml(result.recipient.name)}</strong><br><span class="recipient-number">Their number: ${result.recipient.number}</span><br><span class="whisper">Shhh… it's a secret! 🤫`);
     setButton("spin-gift", false, "Your secret is safe ✓");
     await refreshStatus();
