@@ -99,3 +99,10 @@ Use five different browsers/devices or private browser sessions:
 ## Game rules encoded in the database
 
 Exactly five players are required. Numbers are randomly selected from 10–99 with no duplicates. The gift mapping is generated as a derangement and stored server-side. Each player can reveal only their own assigned number and their own gift recipient. No public database read policy is provided.
+
+
+## Couple exclusions and retryable gift draw
+
+After all five participants have joined, the host selects the two couples from the names entered by the participants. Gift spins stay disabled until both couples are saved. A spin that selects the player, their partner, or would make a complete one-to-one exchange impossible is rejected without consuming a recipient. Valid assignments are stored atomically and only the drawing player can see their own recipient.
+
+Apply the additive SQL migration `supabase/migrations/002_couples_and_retry.sql` in the existing Supabase SQL Editor, then deploy the updated Edge Function in `supabase/functions/lucky-five/index.ts`. Keep `config.js` unchanged and never expose the service-role key. Create a new game after deployment; do not reuse an old test game.
