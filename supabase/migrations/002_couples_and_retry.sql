@@ -28,18 +28,13 @@ begin
     return false;
   end if;
 
-  -- Choose the buyer with the fewest legal remaining options (MRV).
-  select b.id into v_buyer
-  from unnest(p_buyers) as b(id)
-  order by (
-    select count(*)
-    from unnest(p_recipients) as r(id)
-    join public.lf_players bp on bp.id = b.id
-    where r.id <> b.id and (bp.partner_player_id is null or r.id <> bp.partner_player_id)
-  ) asc
-  limit 1;
+  -- Five players only: exhaustive recursion is small (at most 5! branches)
+  -- and avoids relying on query-planner ordering for the matching check.
+  v_buyer := p_buyers[1];
 
-  select partner_player_id into v_partner from public.lf_players where id = v_buyer and game_id = p_game_id;
+  select partner_player_id into v_partner
+  from public.lf_players
+  where id = v_buyer and game_id = p_game_id;
   for v_recipient in
     select r.id from unnest(p_recipients) as r(id)
     where r.id <> v_buyer and (v_partner is null or r.id <> v_partner)
@@ -203,7 +198,7 @@ begin
       select * into v_recipient from public.lf_players where id=v_player.recipient_player_id;
     end if;
     return jsonb_build_object(
-      'status',v_game.status,'players',v_players,
+      'status',v_game.status,'game_id',v_game.id,'players',v_players,
       'my_number',case when v_player.number_revealed_at is not null then to_jsonb(v_player.assigned_number) else 'null'::jsonb end,
       'my_gift',case when v_player.gift_revealed_at is not null then jsonb_build_object('name',v_recipient.display_name,'number',v_recipient.assigned_number) else 'null'::jsonb end,
       'couples_set',(select count(*) from public.lf_players where game_id=v_game.id and partner_player_id is not null)=4
@@ -228,7 +223,7 @@ begin
     'number_drawn',number_revealed_at is not null,'gift_drawn',gift_revealed_at is not null)
     order by created_at),'[]'::jsonb) into v_players
     from public.lf_players where game_id=v_game.id;
-  return jsonb_build_object('status',v_game.status,'players',v_players);
+  return jsonb_build_object('status',v_game.status,'game_id',v_game.id,'players',v_players);
 end;
 $$;
 
