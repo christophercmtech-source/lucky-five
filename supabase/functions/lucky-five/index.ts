@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
         const { data: adminData } = await supabase.rpc("lf_admin_status", {
           p_admin_token_hash: await hash(String(body.adminToken)),
         });
-        isAdmin = !!adminData;
+        isAdmin = !!adminData && adminData.game_id === data.game_id;
       }
       return json({ ...data, is_admin: isAdmin });
     }
