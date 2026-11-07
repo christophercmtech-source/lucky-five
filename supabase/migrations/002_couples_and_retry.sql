@@ -133,6 +133,7 @@ as $$
 declare
   v_player public.lf_players%rowtype;
   v_game public.lf_games%rowtype;
+  v_game_id uuid;
   v_recipient public.lf_players%rowtype;
   v_players jsonb;
   v_all uuid[];
@@ -142,9 +143,20 @@ declare
   v_partner uuid;
   v_count integer;
 begin
-  select * into v_player from public.lf_players where player_token_hash = p_player_token_hash for update;
+  -- Always lock the game before any player row. This consistent lock order
+  -- prevents deadlocks with the host's set-couples operation.
+  select game_id into v_game_id
+  from public.lf_players
+  where player_token_hash = p_player_token_hash;
   if not found then raise exception 'Your private game session was not found. Rejoin using the invitation link.'; end if;
-  select * into v_game from public.lf_games where id = v_player.game_id for update;
+
+  select * into v_game from public.lf_games where id = v_game_id for update;
+  if not found then raise exception 'The game for this session no longer exists.'; end if;
+
+  select * into v_player from public.lf_players
+  where player_token_hash = p_player_token_hash and game_id = v_game_id
+  for update;
+  if not found then raise exception 'Your private game session was not found. Rejoin using the invitation link.'; end if;
 
   if p_action = 'spin-number' then
     if v_game.status not in ('ready','complete') then raise exception 'Waiting for all five players to join.'; end if;
