@@ -9,7 +9,7 @@ A mobile-first installable PWA for a five-person Christmas gift exchange.
 - Create a game and share a seven-character invitation code/link.
 - Five participants enter their own names; no names are preloaded.
 - When the fifth person joins, the database assigns five unique random numbers (10–99).
-- A valid secret gift-exchange mapping is generated at the same time. It is a derangement: nobody draws themselves, and every person is selected exactly once.
+- The host selects the two restricted couples after all five participants have joined. Gift recipients are assigned safely as each person spins Wheel 2.
 - Each player reveals their own number with Wheel 1.
 - Each player reveals only their own recipient with Wheel 2.
 - Other players can see progress (joined / number revealed / gift draw completed), never another person's number or gift assignment.
@@ -17,7 +17,7 @@ A mobile-first installable PWA for a five-person Christmas gift exchange.
 
 ## Important implementation note
 
-The wheels animate on the phone, but the server determines and stores the valid result before the gift spins. This is deliberate: it prevents duplicate recipients, self-draws, and an impossible final draw. The wheel animation is the reveal experience, not the source of randomness.
+The wheels animate on the phone. The server validates every gift draw, prevents self-draws, partner-draws and duplicate recipients, and checks that all remaining players can still be assigned. The wheel animation is the reveal experience; the server is authoritative.
 
 ## 1. Create a Supabase project
 
@@ -98,4 +98,4 @@ Use five different browsers/devices or private browser sessions:
 
 ## Game rules encoded in the database
 
-Exactly five players are required. Numbers are randomly selected from 10–99 with no duplicates. The gift mapping is generated as a derangement and stored server-side. Each player can reveal only their own assigned number and their own gift recipient. No public database read policy is provided.
+Exactly five players are required. Numbers are randomly selected from 10–99 with no duplicates. Each successful gift draw is stored server-side exactly once. Nobody can draw themselves or their partner, and each recipient can be selected only once. Each player can reveal only their own assigned number and their own gift recipient. No public database read policy is provided.
